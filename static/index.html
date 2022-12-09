@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <!-- link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
+    integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
+    crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"
+    integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ=="
+    crossorigin=""></script>
+
+    <script src="//d3js.org/d3.v4.min.js"></script>
+    <script src="//npmcdn.com/geotiff@0.3.6/dist/geotiff.js"></script> 
+    <script src="//cdnjs.cloudflare.com/ajax/libs/chroma-js/2.1.0/chroma.min.js"></script>
+
+    <script src="static/js/leaflet.canvaslayer.field.js"></script-->
+
+    <!-- see https://openlayers.org/download/ for legacy build -->
+    <script src="static/js/ol.js"></script>
+    <link rel="stylesheet" href="static/css/ol.css">
+    <script src="https://cdn.jsdelivr.net/npm/geotiff"></script>
+      
+    <!-- https://bjkronenfeld.wordpress.com/2019/09/10/getting-openlayers-5-examples-to-work-without-node-js/ -->
+    <!-- https://openlayers.org/download/ 
+    
+    <script src="https://cdn.jsdelivr.net/npm/ol@v7.1.0/dist/ol.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v7.1.0/ol.css">
+
+    The full build of the library does not include all dependencies: the geotiff and ol-mapbox-style packages are omitted. If you use these, you'll need to add additional script tags. 
+
+    https://github.com/geotiffjs/geotiff.js:
+    <script src="https://cdn.jsdelivr.net/npm/geotiff"></script>
+
+-->
+  
+    <link rel="stylesheet" href="static/css/index.css">
+    <script src="static/js/fetchTimeout.js"></script>
+    <script src="static/js/index.js"></script>
+  </head>
+  <body onload=init()>
+    <div id="map" class="map" tabindex="0"></div>
+    <div id="content">
+      <div id="text">
+        <p>
+          Cliquez au centre d'un carrefour sur la carte pour en obtenir une schématisation du carrefour sélectionné.<br/><br/>
+          Vous pouvez utiliser les réglages avancés si la segmentation du carrefour est incorrecte, en jouant en priorité sur le rayon élémentaire.<br/><br/>
+          La section commentaire vous permet si vous le souhaitez de nous transmettre votre avis sur la schématisation générée au regard de la réalité du terrain et de vos pratiques.
+        </p>
+      </div>
+      <div id="advanced">
+        <button id="comment_button" class="button" onclick=toggleComment()>Commentaire</button><button id="advanced_button" class="button" onclick=toggleSettings()>Avancé...</button>
+        <a id="download_button" class="button_disabled button_large" disabled>Télécharger (pdf)</a>
+        <div id="comment">
+          <textarea id="comment_text" rows="4" oninput="updateSendButton(this.value)"></textarea>
+          <span><button id="send_button" class="button_disabled" disabled onclick=sendComment()>Envoyer</button></span>
+        </div>
+        <div id="settings">
+          <div id="settings_content">
+            <span><label>Rayon élémentaire (C0) : </label><label id="C0val">2</label></span>
+            <input id="C0" class="slider" type="range" id="volume" name="volume" min="0.1" max="10" value="2" step="0.1" oninput="updateSlider(this, this.value)">
+            <span><label>Distance de fusion (C1) : </label><label id="C1val">2</label></span>
+            <input id="C1" class="slider" type="range" id="volume" name="volume" min="0.1" max="10" value="2" step="0.1" oninput="updateSlider(this, this.value)">
+            <span><label>Longueur boucle de fusion (C2) : </label><label id="C2val">4</label></span>
+            <input id="C2" class="slider" type="range" id="volume" name="volume" min="0.1" max="8" value="4" step="0.1" oninput="updateSlider(this, this.value)">
+          </div>
+          <span id="settings_buttons"><button id="reload_button" class="button_disabled" disabled onclick=reloadPigeon()>Recharger</button><button id="reset_button" class="button" onclick=resetSliders()>Réinitialiser</button></span>
+        </div>
+      </div>
+    </div>
+  </body>
+</html> 

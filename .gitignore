@@ -1,0 +1,6 @@
+static/cache/
+static/cache/
+cache/
+log
+__pycache__/
+package-lock.json
