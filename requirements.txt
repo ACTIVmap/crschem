@@ -1,3 +1,3 @@
-crossroads-schematization>=0.0.6
+crossroads-schematization>=0.2.1
 scipy>=1.9.3
 flask>=2.2.2

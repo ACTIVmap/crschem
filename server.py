@@ -17,7 +17,7 @@ def log(uid, lat, lng, c0, c1, c2, error=None, comment=None):
             xml = "static/cache/%s/%s"%(uid,file)
             break
     libraries = ""
-    for lib in ["osmnx","crossroads-segmentation","crmodel", "crdesc", "crossroads-schematization"]:
+    for lib in ["osmnx","crossroads-segmentation","crmodel", "crossroads-schematization"]:
         libraries += "%s %s\n"%(lib, version(lib))
     logfile = "DATE : %s\nPOSITION : %s %s\nC0 C1 C2 : %s %s %s\nLIBRARIES : \n%s"%(datetime.now().strftime("%d/%m/%Y %H:%M:%S"), lat, lng, c0, c1, c2, libraries)
     if comment:
@@ -84,4 +84,4 @@ def send_schematization():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=int(shutil.os.environ.get("PORT", 8080)))
+    app.run(debug=True, use_reloader=False, host='0.0.0.0', port=int(shutil.os.environ.get("PORT", 8080)))

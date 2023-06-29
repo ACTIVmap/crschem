@@ -5,6 +5,9 @@ requesting = false
 layerTactile = null
 content = ""
 
+ol.proj.useGeographic()
+
+
 function resetInterface(msg) {
   document.getElementById("content").innerHTML = content
   document.getElementById("C0").value = c0
@@ -23,7 +26,7 @@ function getSchematization(e, comment="") {
     disableReload()
 
     // Fetch parameters
-    var coords = ol.proj.toLonLat(e.coordinate);
+    var coords = e.coordinate;
     var lat = coords[1];
     var lng = coords[0];
     c0 = document.getElementById("C0").value
@@ -36,7 +39,6 @@ function getSchematization(e, comment="") {
     
     // Fetch data from the API. Timeout of 10s.
     fetchTimeout(window.location.origin+window.location.pathname+"schematization"+"?lat="+lat+"&lng="+lng+"&c0="+c0+"&c1="+c1+"&c2="+c2+"&uid="+uid+"&comment="+comment, 10000).then(response => {
-      console.log(response);
       return response.json(); 
     }).then(json => {
 
@@ -47,35 +49,47 @@ function getSchematization(e, comment="") {
       document.getElementById("C2").value = c2
       document.getElementById("download_button").disabled = false
       document.getElementById("download_button").className = "button button_large"
-      document.getElementById("download_button").href = json["pdf"]
+      document.getElementById("download_button").href = json["tif"]
 
-      console.log("Create source");
-      const source = new ol.source.GeoTIFF({
-        sources: [
-          {
-            url: json["tif"]
-          }]});
+      fetch(json["tif"]).then((response) => response.blob()).then((blob) => {
 
-      console.log("Create layer from the geotiff");
-      const layer = new ol.layer.WebGLTile({
-        source: source,
+        console.log("Create source");
+        const source = new ol.source.GeoTIFF({
+          sources: [
+            {
+              blob: blob
+            }]});
+
+        if (layerTactile != null) {
+          console.log("Remove previous layer")
+          map.removeLayer(layerTactile);
+        }
+
+        console.log("Create layer from the geotiff");
+        layerTactile = new ol.layer.WebGLTile({
+          source: source,
+        });
+
+        // add layer to the map
+        console.log("Add layer to the map");
+        map.addLayer(layerTactile);
+
+        console.log("update interface");
+        // Display a message to indicate that the comment was sent 
+        if(comment != "") {
+          document.getElementById("comment_text").value = ""
+          document.getElementById("text").innerHTML = "Votre commentaire a bien été envoyé."
+        }
+        point = new ol.geom.Point([lng, lat], 'XY');
+        const view = map.getView();
+        view.fit(point);
+        view.setZoom(20);
+
+
+        // Update UI elements and enable to request again
+        updateSendButton(document.getElementById("comment_text").value)
+        requesting = false
       });
-
-      // add layer to the map (TODO: remove the previous one)
-      console.log("Add layer to the map");
-      map.addLayer(layer);
-      console.log(layer);
-
-      console.log("update interface");
-      // Display a message to indicate that the comment was sent 
-      if(comment != "") {
-        document.getElementById("comment_text").value = ""
-        document.getElementById("text").innerHTML = "Votre commentaire a bien été envoyé."
-      }
-
-      // Update UI elements and enable to request again
-      updateSendButton(document.getElementById("comment_text").value)
-      requesting = false
 
     }).catch(error => {
       console.error(error)
@@ -200,7 +214,7 @@ function init() {
   map = new ol.Map({
     layers: [osmfr],
     target: 'map',
-    view: view_main,
+    view: view_main
   });
   
 

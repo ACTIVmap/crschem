@@ -41,15 +41,13 @@
     <div id="map" class="map" tabindex="0"></div>
     <div id="content">
       <div id="text">
-        <p>
-          Cliquez au centre d'un carrefour sur la carte pour en obtenir une schématisation du carrefour sélectionné.<br/><br/>
-          Vous pouvez utiliser les réglages avancés si la segmentation du carrefour est incorrecte, en jouant en priorité sur le rayon élémentaire.<br/><br/>
-          La section commentaire vous permet si vous le souhaitez de nous transmettre votre avis sur la schématisation générée au regard de la réalité du terrain et de vos pratiques.
-        </p>
+        <p>Cliquez au centre d'un carrefour sur la carte pour en obtenir une schématisation du carrefour sélectionné.
+          Vous pouvez utiliser les réglages avancés si la segmentation du carrefour est incorrecte, en jouant en priorité sur le rayon élémentaire.</p>
+        <p>La section commentaire vous permet si vous le souhaitez de nous transmettre votre avis sur la schématisation générée au regard de la réalité du terrain et de vos pratiques.</p>
       </div>
       <div id="advanced">
         <button id="comment_button" class="button" onclick=toggleComment()>Commentaire</button><button id="advanced_button" class="button" onclick=toggleSettings()>Avancé...</button>
-        <a id="download_button" class="button_disabled button_large" disabled>Télécharger (pdf)</a>
+        <a id="download_button" class="button_disabled button_large" disabled>Télécharger (geotiff)</a>
         <div id="comment">
           <textarea id="comment_text" rows="4" oninput="updateSendButton(this.value)"></textarea>
           <span><button id="send_button" class="button_disabled" disabled onclick=sendComment()>Envoyer</button></span>
