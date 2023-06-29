@@ -244,9 +244,9 @@ function init() {
       '#map=' +
       view.getZoom().toFixed(2) +
       '/' +
-      center[0].toFixed(2) +
+      center[0].toFixed(8) +
       '/' +
-      center[1].toFixed(2) +
+      center[1].toFixed(8) +
       '/' +
       view.getRotation();
     const state = {
