@@ -49,9 +49,9 @@ function getSchematization(e, comment="") {
       document.getElementById("C2").value = c2
       document.getElementById("download_button").disabled = false
       document.getElementById("download_button").className = "button button_large"
-      document.getElementById("download_button").href = json["tif"]
+      document.getElementById("download_button").href = json["tif-300"]
 
-      fetch(json["tif"]).then((response) => response.blob()).then((blob) => {
+      fetch(json["tif-96"]).then((response) => response.blob()).then((blob) => {
 
         console.log("Create source");
         const source = new ol.source.GeoTIFF({
@@ -184,7 +184,7 @@ function resetSliders() {
 function init() {
 
   let zoom = 14;
-  let center = [343737.316198, 5742675.716551];
+  let center = [3.0869, 45.7719];
   if (window.location.hash !== '') {
     // try to restore center, zoom-level and rotation from the URL
     const hash = window.location.hash.replace('#map=', '');

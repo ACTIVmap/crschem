@@ -23,7 +23,8 @@ def generate_schematization_if_required(uid, latitude : float, longitude : float
         
         #crschem.toPdf(run_path + "/" + "schematization.pdf")
         
-        crschem.toTif(run_path + "/" + "schematization.tif")
+        crschem.toTif(run_path + "/" + "schematization-96.tif", resolution=96)
+        crschem.toTif(run_path + "/" + "schematization-300.tif", resolution=300)
 
         result = "successful export"
     else:

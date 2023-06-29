@@ -71,8 +71,8 @@ def send_schematization():
     if directory != "":
         try:
             result = {
-                "tif": url_prefix + directory + "/" + "schematization.tif",
-                "pdf": url_prefix + directory + "/" + "schematization.pdf"
+                "tif-96": url_prefix + directory + "/" + "schematization-96.tif",
+                "tif-300": url_prefix + directory + "/" + "schematization-300.tif"
             }
             return json.dumps(result)
         except Exception as e:
