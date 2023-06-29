@@ -184,7 +184,7 @@ function resetSliders() {
 function init() {
 
   let zoom = 14;
-  let center = [3.0869, 45.7719];
+  let center = [3.0869, 45.7719]; // Clermont-Ferrand
   if (window.location.hash !== '') {
     // try to restore center, zoom-level and rotation from the URL
     const hash = window.location.hash.replace('#map=', '');
