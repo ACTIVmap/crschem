@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <title>Crossroads schematization</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <!-- link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"
     integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ=="
@@ -41,27 +42,72 @@
     <div id="map" class="map" tabindex="0" autofocus></div>
     <div id="content">
       <div id="text">
-        <p>Cliquez au centre d'un carrefour sur la carte pour en obtenir une schématisation du carrefour sélectionné.
-          Vous pouvez utiliser les réglages avancés si la segmentation du carrefour est incorrecte, en jouant en priorité sur le rayon élémentaire.</p>
-        <p>La section commentaire vous permet si vous le souhaitez de nous transmettre votre avis sur la schématisation générée au regard de la réalité du terrain et de vos pratiques.</p>
+        <p>Cliquez au centre d'un carrefour pour en obtenir sa schématisation.</p>
+      </div>
+      <div>
+        <fieldset>
+          <legend>Affichage</legend>
+        <div><span><label>Opacité</label></span>
+          <input id="opacity" class="slider" type="range" name="opacity" min="0" max="1.0" value="1.0" step="0.1" disabled>
+        </div>
+        </fieldset>
+
+        <a id="download_button" class="button_disabled button_large" disabled>Télécharger (geotiff)</a>
+        <a id="osm_button" target="_blank" class="button button_large">Éditer dans OpenStreetMap</a>
       </div>
       <div id="advanced">
-        <button id="comment_button" class="button" onclick=toggleComment()>Commentaire</button><button id="advanced_button" class="button" onclick=toggleSettings()>Avancé...</button>
-        <a id="download_button" class="button_disabled button_large" disabled>Télécharger (geotiff)</a>
-        <div id="comment">
+        <button id="settings_button" class="button tab selected" onclick=selectSettings()>Options</button>
+        <button id="comment_button" class="button tab" onclick=selectComment()>Commentaire</button>
+        <div id="comment" class="panel">
           <textarea id="comment_text" rows="4" oninput="updateSendButton(this.value)"></textarea>
           <span><button id="send_button" class="button_disabled" disabled onclick=sendComment()>Envoyer</button></span>
         </div>
-        <div id="settings">
+        <div id="settings" class="selected_panel">
           <div id="settings_content">
-            <span><label>Rayon élémentaire (C0) : </label><label id="C0val">2</label></span>
-            <input id="C0" class="slider" type="range" id="volume" name="volume" min="0.1" max="10" value="2" step="0.1" oninput="updateSlider(this, this.value)">
-            <span><label>Distance de fusion (C1) : </label><label id="C1val">2</label></span>
-            <input id="C1" class="slider" type="range" id="volume" name="volume" min="0.1" max="10" value="2" step="0.1" oninput="updateSlider(this, this.value)">
-            <span><label>Longueur boucle de fusion (C2) : </label><label id="C2val">4</label></span>
-            <input id="C2" class="slider" type="range" id="volume" name="volume" min="0.1" max="8" value="4" step="0.1" oninput="updateSlider(this, this.value)">
+            <fieldset>
+            <legend>Paramètres de segmentation</legend>
+            <div class="parameters">
+              <div>
+                <span><label>Rayon élémentaire (C0) : </label><label id="C0val">2</label></span>
+                <input id="C0" class="slider" type="range" name="C0" min="0.1" max="10" value="2" step="0.1" oninput="updateSlider(this, this.value)">
+              </div>
+              <div>
+                <span><label>Distance de fusion (C1) : </label><label id="C1val">2</label></span>
+                <input id="C1" class="slider" type="range" name="C1" min="0.1" max="10" value="2" step="0.1" oninput="updateSlider(this, this.value)">
+              </div>
+              <div>
+                <span><label>Longueur boucle de fusion (C2) : </label><label id="C2val">4</label></span>
+                <input id="C2" class="slider" type="range" name="C2" min="0.1" max="8" value="4" step="0.1" oninput="updateSlider(this, this.value)">
+              </div>
+            </div>
+            </fieldset>
+            <fieldset>
+              <legend>Paramètres de schématisation</legend>
+              <div class="parameters">
+                <div><input type="checkbox" id="ignore_pp"> <label>Les trottoirs ignorent les passages piétons</label></div>
+                
+                <div><input type="checkbox" id="fixed_width"> <label>Branches à largeur fixe</label></div>
+
+                <span><label>Forme des tournants</label></span>
+                <div>
+                  <input type="radio" id="bevel" name="turns" value="bevel"
+                        checked>
+                  <label for="bevel">chanfreins</label>
+                </div>
+
+                <div>
+                  <input type="radio" id="straight" name="turns" value="straight">
+                  <label for="straight">angles vifs</label>
+                </div>
+
+                <div>
+                  <input type="radio" id="adjusted" name="turns" value="adjusted" checked>
+                  <label for="adjusted">angles ajustés</label>
+                </div>
+              </div>
+            </fieldset>
           </div>
-          <span id="settings_buttons"><button id="reload_button" class="button_disabled" disabled onclick=reloadPigeon()>Recharger</button><button id="reset_button" class="button" onclick=resetSliders()>Réinitialiser</button></span>
+          <span id="settings_buttons"><button id="reload_button" class="button_disabled" disabled onclick=reloadPigeon()>Recharger</button><button id="reset_button" class="button" onclick=resetParameters()>Réinitialiser</button></span>
         </div>
       </div>
     </div>

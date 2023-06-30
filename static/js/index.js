@@ -8,16 +8,49 @@ content = ""
 ol.proj.useGeographic()
 
 
-function resetInterface(msg) {
-  document.getElementById("content").innerHTML = content
+
+function setDownload(href = "") {
+  // button
+  if (href == "") {
+    document.getElementById("download_button").disabled = true
+    document.getElementById("download_button").className = "button_disabled button_large"
+  }
+  else {
+    document.getElementById("download_button").disabled = false
+    document.getElementById("download_button").className = "button button_large"
+  }
+  document.getElementById("download_button").href = href;
+}
+
+function setParameters(msg = "") {
+  // message
+  if (msg != "") {
+    document.getElementById("text").innerHTML = msg
+  }
+  // parameters
   document.getElementById("C0").value = c0
   document.getElementById("C1").value = c1
   document.getElementById("C2").value = c2
-  document.getElementById("text").innerHTML = msg
-  document.getElementById("download_button").disabled = true
-  document.getElementById("download_button").className = "button_disabled button_large"
-  document.getElementById("download_button").href = "";
+  document.getElementById("ignore_pp").checked = ignore_pp
+  document.getElementById("fixed_width").checked = fixed_width
+  document.getElementById(turns).checked = true
 }
+
+function resetInterface(msg = "", href = "") {
+  document.getElementById("content").innerHTML = content
+  
+  setParameters(msg)
+
+  setDownload(href)
+}
+
+function updateOpacity() {
+  const opacity = parseFloat(opacityInput.value);
+  if (layerTactile != null) {
+    layerTactile.setOpacity(opacity);
+  }
+}
+
 
 /* Core function */
 function getSchematization(e, comment="") {
@@ -32,71 +65,82 @@ function getSchematization(e, comment="") {
     c0 = document.getElementById("C0").value
     c1 = document.getElementById("C1").value
     c2 = document.getElementById("C2").value
+    ignore_pp = document.getElementById("ignore_pp").checked
+    fixed_width = document.getElementById("fixed_width").checked
+
+    turns = document.querySelector('input[name="turns"]:checked').value;
     comment = comment.replaceAll("\n", "%0A")
 
     // Replace content with loading animation
     document.getElementById("content").innerHTML = '<div id="loading" class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>'
     
     // Fetch data from the API. Timeout of 10s.
-    fetchTimeout(window.location.origin+window.location.pathname+"schematization"+"?lat="+lat+"&lng="+lng+"&c0="+c0+"&c1="+c1+"&c2="+c2+"&uid="+uid+"&comment="+comment, 10000).then(response => {
+    fetchTimeout(window.location.origin+window.location.pathname+"schematization"+"?lat="+lat+"&lng="+lng+"&c0="+c0+"&c1="+c1+"&c2="+c2+"&ignore_pp="+ignore_pp+"&fixed_width="+fixed_width+"&turns="+turns+"&uid="+uid+"&comment="+comment, 10000).then(response => {
       return response.json(); 
     }).then(json => {
+      if (json["error"] === undefined) {
 
-      // Put the content back on the page
-      document.getElementById("content").innerHTML = content
-      document.getElementById("C0").value = c0
-      document.getElementById("C1").value = c1
-      document.getElementById("C2").value = c2
-      document.getElementById("download_button").disabled = false
-      document.getElementById("download_button").className = "button button_large"
-      document.getElementById("download_button").href = json["tif-300"]
+        // Put the content back on the page
+        resetInterface("", json["tif-300"])
 
-      fetch(json["tif-96"]).then((response) => response.blob()).then((blob) => {
+        // integrate small image on the map
+        fetch(json["tif-96"]).then((response) => response.blob()).then((blob) => {
 
-        console.log("Create source");
-        const source = new ol.source.GeoTIFF({
-          sources: [
-            {
-              blob: blob
-            }]});
+          console.log("Create source");
+          const source = new ol.source.GeoTIFF({
+            sources: [
+              {
+                blob: blob
+              }]});
 
-        if (layerTactile != null) {
-          console.log("Remove previous layer")
-          map.removeLayer(layerTactile);
-        }
+          if (layerTactile != null) {
+            console.log("Remove previous layer")
+            map.removeLayer(layerTactile);
+          }
+          opacityInput = document.getElementById('opacity');
+          opacityInput.disabled = false;
+          opacityInput.addEventListener('input', updateOpacity);
 
-        console.log("Create layer from the geotiff");
-        layerTactile = new ol.layer.WebGLTile({
-          source: source,
+          console.log("Create layer from the geotiff");
+          layerTactile = new ol.layer.WebGLTile({
+            source: source,
+          });
+
+          // add layer to the map
+          console.log("Add layer to the map");
+          map.addLayer(layerTactile);
+          updateOpacity();
+
+          console.log("update interface");
+          // Display a message to indicate that the comment was sent 
+          if(comment != "") {
+            document.getElementById("comment_text").value = ""
+            document.getElementById("text").innerHTML = "Votre commentaire a bien été envoyé."
+          }
+          point = new ol.geom.Point([lng, lat], 'XY');
+          const view = map.getView();
+          view.fit(point);
+          view.setZoom(20);
+
+
+          // Update UI elements and enable to request again
+          updateSendButton(document.getElementById("comment_text").value)
+          requesting = false
         });
 
-        // add layer to the map
-        console.log("Add layer to the map");
-        map.addLayer(layerTactile);
-
-        console.log("update interface");
-        // Display a message to indicate that the comment was sent 
-        if(comment != "") {
-          document.getElementById("comment_text").value = ""
-          document.getElementById("text").innerHTML = "Votre commentaire a bien été envoyé."
-        }
-        point = new ol.geom.Point([lng, lat], 'XY');
-        const view = map.getView();
-        view.fit(point);
-        view.setZoom(20);
-
-
-        // Update UI elements and enable to request again
-        updateSendButton(document.getElementById("comment_text").value)
+      }
+      else {
+        resetInterface("Erreur pendant l'exécution: <pre>" + json["error"] + "</pre><br /> Veuillez choisir un autre carrefour.");
+        
         requesting = false
-      });
+      }
 
     }).catch(error => {
-      console.error(error)
+      console.error(error);
       if (typeof msg !== 'undefined')
-        resetInterface(msg);
+      resetInterfaceMessage(msg);
       else
-        resetInterface("Le serveur n'a pas répondu. Veuillez réessayer ultérieurement.");
+      resetInterface("Le serveur n'a pas répondu. Veuillez réessayer ultérieurement.");
       requesting = false
     })
   }
@@ -117,24 +161,44 @@ function downloadPDF() {
     // TODO
 }
 
-function toggleComment() {
-  comment = document.getElementById("comment")
-  if(comment.style.display != "grid") {
-    comment.style.display = "grid"
-    document.getElementById("content").scrollTop = document.getElementById("content").scrollHeight;
-  }
-  else
-    comment.style.display = "none"  
+function selectElement(elem_name) {
+  list = ["comment", "settings"];
+
+  // change panel
+  elems = list.map(document.getElementById, document);
+  elems.forEach(element => {
+      if (element.id == elem_name) {
+        element.className = "selected_panel";
+      }
+      else {
+        element.className = "panel";
+      }
+  });
+
+  // change button
+  list.forEach(function(part, index) {
+    this[index] = this[index] +"_button";
+  }, list);
+
+  elems = list.map(document.getElementById, document);
+  elems.forEach(element => {
+      if (element.id == elem_name + "_button") {
+        element.className = "button tab selected";
+      }
+      else {
+        element.className = "button tab";
+      }
+  });
+
+  document.getElementById("content").scrollTop = document.getElementById("content").scrollHeight;
 }
 
-function toggleSettings() {
-  settings = document.getElementById("settings")
-  if(settings.style.display != "grid") {
-    settings.style.display = "grid"
-    document.getElementById("content").scrollTop = document.getElementById("content").scrollHeight;
-  }
-  else
-    settings.style.display = "none"
+function selectComment() {
+  selectElement("comment");
+}
+
+function selectSettings() {
+  selectElement("settings");
 }
 
 /* UI updating functions */
@@ -171,13 +235,18 @@ function updateSlider(slider, value) {
   }
 }
 
-function resetSliders() {
+function resetParameters() {
   document.getElementById("C0").value = 2
   document.getElementById("C1").value = 2
   document.getElementById("C2").value = 4
   document.getElementById("C0val").innerHTML = 2
   document.getElementById("C1val").innerHTML = 2
   document.getElementById("C2val").innerHTML = 4
+
+  document.getElementById("ignore_pp").checked = false;
+  document.getElementById("fixed_width").checked = false;
+
+  document.getElementById("adjusted").checked = true;
 }
 
 /* Initialisation function */
@@ -223,7 +292,7 @@ function init() {
 
   // Reinit some UI elements
   document.getElementById("comment_text").value = ""
-  resetSliders()
+  resetParameters()
 
   // Load url parameters
   url_params = new URLSearchParams(window.location.search);
@@ -240,13 +309,16 @@ function init() {
     }
 
     const center = view.getCenter();
+    const zoom = view.getZoom().toFixed(2);
+    const x = center[0].toFixed(6);
+    const y = center[1].toFixed(6);
     const hash =
       '#map=' +
-      view.getZoom().toFixed(2) +
+      zoom +
       '/' +
-      center[0].toFixed(8) +
+      x +
       '/' +
-      center[1].toFixed(8) +
+      y +
       '/' +
       view.getRotation();
     const state = {
@@ -254,6 +326,7 @@ function init() {
       center: view.getCenter(),
       rotation: view.getRotation(),
     };
+    document.getElementById("osm_button").href = "https://www.openstreetmap.org/edit#map=" + zoom + "/" + y + "/" + x
     window.history.pushState(state, 'map', hash);
   };
 

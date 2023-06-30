@@ -1,8 +1,17 @@
 import os
 import shutil
 
-def generate_schematization_if_required(uid, latitude : float, longitude : float, c0: float, c1: float, c2 : float, logger):  
+def generate_schematization_if_required(uid, latitude : float, longitude : float, c0: float, c1: float, c2 : float, 
+                                ignore_pp: bool, fixed_width: bool, turns: str, logger):  
     import crschem.crossroad_schematization as cs
+    import crschem.crossroad as c
+
+    if turns == "straight":
+        turns = c.TurningSidewalk.TurnShape.STRAIGHT_ANGLE
+    elif turns == "bevel":
+        turns = c.TurningSidewalk.TurnShape.BEVELED
+    else:
+        turns = c.TurningSidewalk.TurnShape.ADJUSTED_ANGLE
 
     cache_dir = "static/cache/"
     uid_path = cache_dir + str(uid)
@@ -16,8 +25,11 @@ def generate_schematization_if_required(uid, latitude : float, longitude : float
 
         logger.info("PREPARE CrossroadSchematization lat: %s, long: %s", latitude, longitude)
         crschem = cs.CrossroadSchematization.build(latitude, longitude,
-                                                   c0, c1, c2,
-                                                   verbose=True)
+                                                    c0, c1, c2,
+                                                    ignore_crossings_for_sidewalks = ignore_pp,
+                                                    use_fixed_width_on_branches = fixed_width,
+                                                    turn_shape = turns,
+                                                    verbose=True)
         logger.info("PROCESS CrossroadSchematization")
         crschem.process()
         
