@@ -2,7 +2,7 @@ import os
 import shutil
 
 def generate_schematization_if_required(uid, latitude : float, longitude : float, c0: float, c1: float, c2 : float, 
-                                ignore_pp: bool, fixed_width: bool, turns: str, logger):  
+                                ignore_pp: bool, fixed_width: bool, turns: str, layout: str, logger):  
     import crschem.crossroad_schematization as cs
     import crschem.crossroad as c
 
@@ -12,6 +12,9 @@ def generate_schematization_if_required(uid, latitude : float, longitude : float
         turns = c.TurningSidewalk.TurnShape.BEVELED
     else:
         turns = c.TurningSidewalk.TurnShape.ADJUSTED_ANGLE
+
+    layout = cs.CrossroadSchematization.Layout[layout]
+    logger.info("LAYOUT %s", layout)
 
     cache_dir = "static/cache/"
     uid_path = cache_dir + str(uid)
@@ -35,8 +38,8 @@ def generate_schematization_if_required(uid, latitude : float, longitude : float
         
         #crschem.toPdf(run_path + "/" + "schematization.pdf")
         
-        crschem.toTif(run_path + "/" + "schematization-96.tif", resolution=96)
-        crschem.toTif(run_path + "/" + "schematization-300.tif", resolution=300)
+        crschem.toTif(run_path + "/" + "schematization-96.tif", resolution=96, layout=layout)
+        crschem.toTif(run_path + "/" + "schematization-300.tif", resolution=300, layout=layout)
 
         result = "successful export"
     else:

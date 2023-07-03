@@ -34,6 +34,7 @@ function setParameters(msg = "") {
   document.getElementById("ignore_pp").checked = ignore_pp
   document.getElementById("fixed_width").checked = fixed_width
   document.getElementById(turns).checked = true
+  document.getElementById(layout).checked = true
 }
 
 function resetInterface(msg = "", href = "") {
@@ -69,13 +70,14 @@ function getSchematization(e, comment="") {
     fixed_width = document.getElementById("fixed_width").checked
 
     turns = document.querySelector('input[name="turns"]:checked').value;
+    layout = document.querySelector('input[name="layout"]:checked').value;
     comment = comment.replaceAll("\n", "%0A")
 
     // Replace content with loading animation
     document.getElementById("content").innerHTML = '<div id="loading" class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>'
     
     // Fetch data from the API. Timeout of 10s.
-    fetchTimeout(window.location.origin+window.location.pathname+"schematization"+"?lat="+lat+"&lng="+lng+"&c0="+c0+"&c1="+c1+"&c2="+c2+"&ignore_pp="+ignore_pp+"&fixed_width="+fixed_width+"&turns="+turns+"&uid="+uid+"&comment="+comment, 10000).then(response => {
+    fetchTimeout(window.location.origin+window.location.pathname+"schematization"+"?lat="+lat+"&lng="+lng+"&c0="+c0+"&c1="+c1+"&c2="+c2+"&ignore_pp="+ignore_pp+"&fixed_width="+fixed_width+"&turns="+turns+"&layout="+layout+"&uid="+uid+"&comment="+comment, 10000).then(response => {
       return response.json(); 
     }).then(json => {
       if (json["error"] === undefined) {

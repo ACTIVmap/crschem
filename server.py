@@ -10,7 +10,7 @@ import traceback
 from schematization import *
 from flask import Flask, request, send_file
 
-def log(uid, lat, lng, c0, c1, c2, ignore_pp, fixed_width, turns, error=None, comment=None):
+def log(uid, lat, lng, c0, c1, c2, ignore_pp, fixed_width, turns, layout, error=None, comment=None):
     xml = ""
     for file in shutil.os.listdir("static/cache/"+uid):
         if file.endswith('.xml'):
@@ -19,7 +19,7 @@ def log(uid, lat, lng, c0, c1, c2, ignore_pp, fixed_width, turns, error=None, co
     libraries = ""
     for lib in ["osmnx","crossroads-segmentation","crmodel", "crossroads-schematization"]:
         libraries += "%s %s\n"%(lib, version(lib))
-    logfile = "DATE : %s\nPOSITION : %s %s\nC0 C1 C2 : %s %s %s\nignore_pp, fixed_width, turns: %s %s %s\nLIBRARIES : \n%s"%(datetime.now().strftime("%d/%m/%Y %H:%M:%S"), lat, lng, c0, c1, c2, ignore_pp, fixed_width, turns, libraries)
+    logfile = "DATE : %s\nPOSITION : %s %s\nC0 C1 C2 : %s %s %s\nignore_pp, fixed_width, turns, layout: %s %s %s %s\nLIBRARIES : \n%s"%(datetime.now().strftime("%d/%m/%Y %H:%M:%S"), lat, lng, c0, c1, c2, ignore_pp, fixed_width, turns, layout, libraries)
     if comment:
         logfile += "COMMENT : \n%s\n"%comment
     if error:
@@ -53,15 +53,15 @@ def build_schematization():
     if c2 is None:
         c2 = 4
 
-    turns, ignore_pp, fixed_width = args.get("turns"), args.get("ignore_pp"), args.get("fixed_width")
+    turns, ignore_pp, fixed_width, layout = args.get("turns"), args.get("ignore_pp"), args.get("fixed_width"), args.get("layout")
     ignore_pp = ignore_pp == "true"
     fixed_width = fixed_width == "true"
 
 
     if lat and lng and uid:
         result, directory = generate_schematization_if_required(uid, float(lat), float(lng), float(c0), float(c1), float(c2), 
-                bool(ignore_pp), bool(fixed_width), str(turns), app.logger)
-        log(uid, lat, lng, c0, c1, c2, ignore_pp, fixed_width, turns, result, comment)
+                bool(ignore_pp), bool(fixed_width), str(turns), str(layout), app.logger)
+        log(uid, lat, lng, c0, c1, c2, ignore_pp, fixed_width, turns, layout, result, comment)
         return directory
     else:
         return ""
