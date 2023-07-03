@@ -1,3 +1,10 @@
 crossroads-schematization>=0.2.2
+osmnx
 scipy>=1.9.3
 flask>=2.2.2
+shapely>=2.0.1
+matplotlib
+crossroads-segmentation
+crmodel
+gdal
+more-itertools
