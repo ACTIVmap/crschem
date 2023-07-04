@@ -10,7 +10,7 @@ import traceback
 from schematization import *
 from flask import Flask, request, send_file
 
-def log(uid, lat, lng, c0, c1, c2, ignore_pp, fixed_width, turns, layout, margins, error=None, comment=None):
+def log(uid, lat, lng, c0, c1, c2, ignore_pp, fixed_width, turns, layout, margins, scale, error=None, comment=None):
     xml = ""
     for file in shutil.os.listdir("static/cache/"+uid):
         if file.endswith('.xml'):
@@ -19,7 +19,7 @@ def log(uid, lat, lng, c0, c1, c2, ignore_pp, fixed_width, turns, layout, margin
     libraries = ""
     for lib in ["osmnx","crossroads-segmentation","crmodel", "crossroads-schematization"]:
         libraries += "%s %s\n"%(lib, version(lib))
-    logfile = "DATE : %s\nPOSITION : %s %s\nC0 C1 C2 : %s %s %s\nignore_pp, fixed_width, turns, layout, margins: %s %s %s %s %s\nLIBRARIES : \n%s"%(datetime.now().strftime("%d/%m/%Y %H:%M:%S"), lat, lng, c0, c1, c2, ignore_pp, fixed_width, turns, layout, margins, libraries)
+    logfile = "DATE : %s\nPOSITION : %s %s\nC0 C1 C2 : %s %s %s\nignore_pp : %s\nfixed_width: %s\nturns: %s\nlayout: %s\nmargins: %s\nscale: %s\nIBRARIES : \n%s"%(datetime.now().strftime("%d/%m/%Y %H:%M:%S"), lat, lng, c0, c1, c2, ignore_pp, fixed_width, turns, layout, margins, scale, libraries)
     if comment:
         logfile += "COMMENT : \n%s\n"%comment
     if error:
@@ -57,12 +57,13 @@ def build_schematization():
     ignore_pp = ignore_pp == "true"
     fixed_width = fixed_width == "true"
     margins = args.get("margins")
+    scale = args.get("scale")
 
 
     if lat and lng and uid:
         result, directory = generate_schematization_if_required(uid, float(lat), float(lng), float(c0), float(c1), float(c2), 
-                bool(ignore_pp), bool(fixed_width), str(turns), str(layout), float(margins), app.logger)
-        log(uid, lat, lng, c0, c1, c2, ignore_pp, fixed_width, turns, layout, margins, result, comment)
+                bool(ignore_pp), bool(fixed_width), str(turns), str(layout), float(margins), int(scale), app.logger)
+        log(uid, lat, lng, c0, c1, c2, ignore_pp, fixed_width, turns, layout, margins, scale, result, comment)
         return directory
     else:
         return ""

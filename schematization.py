@@ -2,7 +2,7 @@ import os
 import shutil
 
 def generate_schematization_if_required(uid, latitude : float, longitude : float, c0: float, c1: float, c2 : float, 
-                                ignore_pp: bool, fixed_width: bool, turns: str, layout: str, margins: float, logger):  
+                                ignore_pp: bool, fixed_width: bool, turns: str, layout: str, margins: float, scale: int, logger):  
     import crschem.crossroad_schematization as cs
     import crschem.crossroad as c
 
@@ -35,11 +35,9 @@ def generate_schematization_if_required(uid, latitude : float, longitude : float
                                                     verbose=True)
         logger.info("PROCESS CrossroadSchematization")
         crschem.process()
-        
-        #crschem.toPdf(run_path + "/" + "schematization.pdf")
-        
-        crschem.toTif(run_path + "/" + "schematization-96.tif", resolution=96, layout=layout, margin=margins)
-        crschem.toTif(run_path + "/" + "schematization-300.tif", resolution=300, layout=layout, margin=margins)
+                
+        crschem.toTif(run_path + "/" + "schematization-96.tif", resolution=96, layout=layout, margin=margins, scale=scale)
+        crschem.toTif(run_path + "/" + "schematization-300.tif", resolution=300, layout=layout, margin=margins, scale=scale)
 
         result = "successful export"
     else:
