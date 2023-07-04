@@ -279,7 +279,7 @@ function init() {
       attributions: [
         'All maps © <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
       ],
-      url: 'https://{a-c}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+      url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
       crossOrigin: null,
     }),
   });
