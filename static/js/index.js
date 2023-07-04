@@ -255,6 +255,7 @@ function resetParameters() {
   document.getElementById("fixed_width").checked = false;
 
   document.getElementById("adjusted").checked = true;
+  document.getElementById("A5_landscape").checked = true;
   document.getElementById("margins").value = 1.0;
 }
 
