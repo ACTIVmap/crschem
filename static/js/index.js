@@ -29,12 +29,16 @@ function setParameters(msg = "") {
   }
   // parameters
   document.getElementById("C0").value = c0
+  document.getElementById("C0val").innerHTML = c0
   document.getElementById("C1").value = c1
+  document.getElementById("C1val").innerHTML = c1
   document.getElementById("C2").value = c2
+  document.getElementById("C2val").innerHTML = c2
   document.getElementById("ignore_pp").checked = ignore_pp
   document.getElementById("fixed_width").checked = fixed_width
   document.getElementById(turns).checked = true
   document.getElementById(layout).checked = true
+  document.getElementById("margins").value = margins
 }
 
 function resetInterface(msg = "", href = "") {
@@ -71,13 +75,15 @@ function getSchematization(e, comment="") {
 
     turns = document.querySelector('input[name="turns"]:checked').value;
     layout = document.querySelector('input[name="layout"]:checked').value;
+    margins = document.getElementById("margins").value;
+
     comment = comment.replaceAll("\n", "%0A")
 
     // Replace content with loading animation
     document.getElementById("content").innerHTML = '<div id="loading" class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>'
     
     // Fetch data from the API. Timeout of 10s.
-    fetchTimeout(window.location.origin+window.location.pathname+"schematization"+"?lat="+lat+"&lng="+lng+"&c0="+c0+"&c1="+c1+"&c2="+c2+"&ignore_pp="+ignore_pp+"&fixed_width="+fixed_width+"&turns="+turns+"&layout="+layout+"&uid="+uid+"&comment="+comment, 10000).then(response => {
+    fetchTimeout(window.location.origin+window.location.pathname+"schematization"+"?lat="+lat+"&lng="+lng+"&c0="+c0+"&c1="+c1+"&c2="+c2+"&ignore_pp="+ignore_pp+"&fixed_width="+fixed_width+"&turns="+turns+"&layout="+layout+"&margins="+margins+"&uid="+uid+"&comment="+comment, 10000).then(response => {
       return response.json(); 
     }).then(json => {
       if (json["error"] === undefined) {
@@ -249,6 +255,7 @@ function resetParameters() {
   document.getElementById("fixed_width").checked = false;
 
   document.getElementById("adjusted").checked = true;
+  document.getElementById("margins").value = 1.0;
 }
 
 /* Initialisation function */

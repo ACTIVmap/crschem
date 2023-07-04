@@ -88,38 +88,50 @@
                 
                 <div><input type="checkbox" id="fixed_width"> <label>Branches à largeur fixe</label></div>
 
-                <span><label>Forme des tournants</label></span>
                 <div>
-                  <input type="radio" id="bevel" name="turns" value="bevel"
-                        checked>
-                  <label for="bevel">chanfreins</label>
-                </div>
-                <div>
-                  <input type="radio" id="straight" name="turns" value="straight">
-                  <label for="straight">angles vifs</label>
-                </div>
-                <div>
-                  <input type="radio" id="adjusted" name="turns" value="adjusted" checked>
-                  <label for="adjusted">angles ajustés</label>
+                  <span><label>Forme des tournants</label></span>
+                  <div class="choix">
+                    <div>
+                      <input type="radio" id="bevel" name="turns" value="bevel"
+                            checked>
+                      <label for="bevel">chanfreins</label>
+                    </div>
+                    <div>
+                      <input type="radio" id="straight" name="turns" value="straight">
+                      <label for="straight">angles vifs</label>
+                    </div>
+                    <div>
+                      <input type="radio" id="adjusted" name="turns" value="adjusted" checked>
+                      <label for="adjusted">angles ajustés</label>
+                    </div>
+                  </div>
                 </div>
 
-                <span><label>Format de la carte</label></span>
                 <div>
-                  <input type="radio" id="A5_landscape" name="layout" value="A5_landscape"
-                        checked>
-                  <label for="A5_landscape">A5 paysage</label>
+                  <span><label>Format de la carte</label></span>
+                  <div class="choix">
+                    <div>
+                      <input type="radio" id="A5_landscape" name="layout" value="A5_landscape"
+                            checked>
+                      <label for="A5_landscape">A5 paysage</label>
+                    </div>
+                    <div>
+                      <input type="radio" id="A5_portrait" name="layout" value="A5_portrait">
+                      <label for="A5_portrait">A5 portrait</label>
+                    </div>
+                    <div>
+                      <input type="radio" id="A4_landscape" name="layout" value="A4_landscape">
+                      <label for="A4_landscape">A4 paysage</label>
+                    </div>
+                    <div>
+                      <input type="radio" id="A4_portrait" name="layout" value="A4_portrait">
+                      <label for="A4_portrait">A4 portrait</label>
+                    </div>
+                  </div>
                 </div>
                 <div>
-                  <input type="radio" id="A5_portrait" name="layout" value="A5_portrait">
-                  <label for="A5_portrait">A5 portrait</label>
-                </div>
-                <div>
-                  <input type="radio" id="A4_landscape" name="layout" value="A4_landscape">
-                  <label for="A4_landscape">A4 paysage</label>
-                </div>
-                <div>
-                  <input type="radio" id="A4_portrait" name="layout" value="A4_portrait">
-                  <label for="A4_portrait">A4 portrait</label>
+                  <span><label>Marges (cm) autour de la carte</label></span>
+                  <input type="number" id="margins" name="margins" min="0" max="10" step="0.1" value="1.0" />
                 </div>
               </div>
             </fieldset>

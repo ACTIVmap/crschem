@@ -78,6 +78,10 @@ header h1 {
   display: block;
 }
 
+.parameters>div, .choix {
+  margin: 0.5em 0;
+}
+
 #map { 
   margin: 0px;
   height: 100%;
