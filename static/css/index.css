@@ -101,7 +101,7 @@ header h1 {
   overflow: auto;
   position: absolute;
 }
-#content>div {
+#interface>div {
   margin: 10px;
 }
 

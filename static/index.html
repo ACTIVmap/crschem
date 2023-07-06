@@ -47,6 +47,8 @@
           <p>Cliquez au centre d'un carrefour pour en obtenir sa schématisation.</p>
         </div>
         <div>
+          <a id="osm_button" target="_blank" class="button button_large">Éditer dans OpenStreetMap →</a>
+          <a id="streetview_button" target="_blank" class="button button_large">Voir dans Google StreetView →</a>
           <fieldset>
             <legend>Affichage</legend>
 
@@ -72,8 +74,7 @@
             </div>
           </fieldset>
 
-          <a id="download_button" class="button_disabled button_large" disabled>Télécharger (geotiff)</a>
-          <a id="osm_button" target="_blank" class="button button_large">Éditer dans OpenStreetMap</a>
+          <a id="download_button" class="button_disabled button_large" disabled>Télécharger (pdf)</a>
         </div>
         <div id="advanced">
           <button id="settings_button" class="button tab selected" onclick=selectSettings()>Options</button>
@@ -171,6 +172,8 @@
                       </div>
                     </div>
                   </div>
+
+                  <div><input type="checkbox" id="draw_all_island"> <label>Représenter les îlots non atteignables</label></div>
 
                 </div>
               </fieldset>

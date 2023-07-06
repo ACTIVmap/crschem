@@ -35,6 +35,7 @@ function setParameters(msg = "") {
   document.getElementById("C2").value = c2
   document.getElementById("C2val").innerHTML = c2
   document.getElementById("ignore_pp").checked = ignore_pp
+  document.getElementById("draw_all_island").checked = draw_all_island
   document.getElementById("fixed_width").checked = fixed_width
   document.getElementById(turns).checked = true
   document.getElementById(layout).checked = true
@@ -74,6 +75,7 @@ function getSchematization(e, comment="") {
     c1 = document.getElementById("C1").value
     c2 = document.getElementById("C2").value
     ignore_pp = document.getElementById("ignore_pp").checked
+    draw_all_island = document.getElementById("draw_all_island").checked
     fixed_width = document.getElementById("fixed_width").checked
 
     turns = document.querySelector('input[name="turns"]:checked').value;
@@ -89,6 +91,7 @@ function getSchematization(e, comment="") {
     
     request = window.location.origin+window.location.pathname+"schematization"+"?lat="+lat+"&lng="+lng+"&c0="+c0+"&c1="+c1+"&c2="+c2
     request += "&ignore_pp="+ignore_pp+"&fixed_width="+fixed_width+"&turns="+turns
+    request += "&draw_all_island="+draw_all_island
     request += "&layout="+layout+"&margins="+margins+"&scale="+scale
     request += "&uid="+uid+"&comment="+comment
     // Fetch data from the API. Timeout of 10s.
@@ -98,7 +101,7 @@ function getSchematization(e, comment="") {
       if (json["error"] === undefined) {
 
         // Put the content back on the page
-        resetInterface("", json["tif-300"])
+        resetInterface("", json["pdf-300"])
 
         // integrate small image on the map
         fetch(json["tif-96"]).then((response) => response.blob()).then((blob) => {
@@ -260,6 +263,7 @@ function resetParameters() {
 
   document.getElementById("ignore_pp").checked = false;
   document.getElementById("fixed_width").checked = false;
+  document.getElementById("draw_all_island").checked = false;
 
   document.getElementById("adjusted").checked = true;
   document.getElementById("A5_landscape").checked = true;
@@ -383,7 +387,9 @@ function init() {
       rotation: view.getRotation(),
     };
     document.getElementById("osm_button").href = "https://www.openstreetmap.org/edit#map=" + zoom + "/" + y + "/" + x
+    document.getElementById("streetview_button").href = 'http://maps.google.com/maps?q=&layer=c&cbll=' + y + "," + x + '&cbp=11,0,0,0,0';
     window.history.pushState(state, 'map', hash);
+    
   };
 
   map.on('moveend', updatePermalink);
