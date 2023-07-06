@@ -319,7 +319,7 @@ function init() {
       attributions: [
         'IGN-F / Geoportail',
       ],
-      url: "https://wxs.ign.fr/jhyvi0fgmnuxvfv0zjzorvdn/geoportail/wmts?" +
+      url: "https://wxs.ign.fr/choisirgeoportail/geoportail/wmts?" +
       "&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0" +
       "&STYLE=normal" +
       "&TILEMATRIXSET=PM" +
