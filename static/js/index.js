@@ -3,7 +3,7 @@ var uid = Math.random().toString(36).slice(2);
 coords = null
 requesting = false
 layerTactile = null
-content = ""
+var osm, osmfr, orthoIGN;
 
 ol.proj.useGeographic()
 
@@ -43,7 +43,8 @@ function setParameters(msg = "") {
 }
 
 function resetInterface(msg = "", href = "") {
-  document.getElementById("content").innerHTML = content
+  document.getElementById("interface").className = ''
+  document.getElementById("loading").className = 'hidden'
   
   setParameters(msg)
 
@@ -56,6 +57,7 @@ function updateOpacity() {
     layerTactile.setOpacity(opacity);
   }
 }
+
 
 
 /* Core function */
@@ -82,14 +84,15 @@ function getSchematization(e, comment="") {
     comment = comment.replaceAll("\n", "%0A")
 
     // Replace content with loading animation
-    document.getElementById("content").innerHTML = '<div id="loading" class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>'
+    document.getElementById("interface").className = 'hidden'
+    document.getElementById("loading").className = ''
     
     request = window.location.origin+window.location.pathname+"schematization"+"?lat="+lat+"&lng="+lng+"&c0="+c0+"&c1="+c1+"&c2="+c2
     request += "&ignore_pp="+ignore_pp+"&fixed_width="+fixed_width+"&turns="+turns
     request += "&layout="+layout+"&margins="+margins+"&scale="+scale
     request += "&uid="+uid+"&comment="+comment
     // Fetch data from the API. Timeout of 10s.
-    fetchTimeout(request, 10000).then(response => {
+    fetchTimeout(request, 20000).then(response => {
       return response.json(); 
     }).then(json => {
       if (json["error"] === undefined) {
@@ -111,9 +114,7 @@ function getSchematization(e, comment="") {
             console.log("Remove previous layer")
             map.removeLayer(layerTactile);
           }
-          opacityInput = document.getElementById('opacity');
-          opacityInput.disabled = false;
-          opacityInput.addEventListener('input', updateOpacity);
+
 
           console.log("Create layer from the geotiff");
           layerTactile = new ol.layer.WebGLTile({
@@ -266,6 +267,14 @@ function resetParameters() {
   document.getElementById("400").checked = true;
 }
 
+function setVisibleMap() {
+  bg = document.querySelector('input[name="background"]:checked').value;
+
+  osmfr.setVisible(bg == "osm-fr");
+  osm.setVisible(bg == "osm");
+  orthoIGN.setVisible(bg == "ortho-ign");
+}
+
 /* Initialisation function */
 function init() {
 
@@ -281,7 +290,7 @@ function init() {
     }
   }
 
-  const osmfr = new ol.layer.Tile({
+  osm = new ol.layer.Tile({
     source: new ol.source.OSM({
       attributions: [
         'All maps © <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
@@ -290,7 +299,35 @@ function init() {
       crossOrigin: null,
     }),
   });
+
+  osmfr = new ol.layer.Tile({
+    source: new ol.source.OSM({
+      attributions: [
+        'All maps © <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
+      ],
+      url: 'https://{a-c}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+      crossOrigin: null,
+    }),
+  });
   
+  orthoIGN = new ol.layer.Tile({
+    source: new ol.source.OSM({
+      attributions: [
+        'IGN-F / Geoportail',
+      ],
+      url: "https://wxs.ign.fr/jhyvi0fgmnuxvfv0zjzorvdn/geoportail/wmts?" +
+      "&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0" +
+      "&STYLE=normal" +
+      "&TILEMATRIXSET=PM" +
+      "&FORMAT=image/jpeg"+
+      "&LAYER=ORTHOIMAGERY.ORTHOPHOTOS"+
+      "&TILEMATRIX={z}" +
+      "&TILEROW={y}" +
+      "&TILECOL={x}",
+      crossOrigin: null,
+    }),
+  });
+
   view_main = new ol.View({
     maxZoom: 22,
     center: center,
@@ -298,10 +335,12 @@ function init() {
   })
 
   map = new ol.Map({
-    layers: [osmfr],
+    layers: [osmfr, osm, orthoIGN],
     target: 'map',
     view: view_main
   });
+
+  setVisibleMap();
   
 
   // Enable interaction on the map to get the description
@@ -349,7 +388,12 @@ function init() {
 
   map.on('moveend', updatePermalink);
 
-  // default content
-  content = document.getElementById("content").innerHTML
+
+  opacityInput = document.getElementById('opacity');
+  opacityInput.disabled = false;
+  opacityInput.addEventListener('input', updateOpacity);
+  document.querySelectorAll("input[name='background']").forEach((input) => {
+    input.addEventListener('change', setVisibleMap);
+  });
 
 }

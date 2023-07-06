@@ -91,6 +91,10 @@ header h1 {
   transition: all .5s linear;
 }
 
+.hidden {
+  display: none;
+}
+
 #content {
   background-color: white;
   opacity: 0.9;
