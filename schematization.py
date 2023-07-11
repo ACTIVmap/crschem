@@ -6,14 +6,14 @@ def generate_schematization_if_required(uid, latitude : float, longitude : float
                                 draw_all_island: bool,
                                 layout: str, margins: float, scale: int, logger):  
     import crschem.crossroad_schematization as cs
-    import crschem.crossroad as c
+    from crschem.model.turning_sidewalk import TurningSidewalk
 
     if turns == "straight":
-        turns = c.TurningSidewalk.TurnShape.STRAIGHT_ANGLE
+        turns = TurningSidewalk.TurnShape.STRAIGHT_ANGLE
     elif turns == "bevel":
-        turns = c.TurningSidewalk.TurnShape.BEVELED
+        turns = TurningSidewalk.TurnShape.BEVELED
     else:
-        turns = c.TurningSidewalk.TurnShape.ADJUSTED_ANGLE
+        turns = TurningSidewalk.TurnShape.ADJUSTED_ANGLE
 
     layout = cs.CrossroadSchematization.Layout[layout]
     logger.info("LAYOUT %s", layout)
