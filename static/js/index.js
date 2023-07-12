@@ -253,6 +253,52 @@ function updateSlider(slider, value) {
   }
 }
 
+function updateCommandLine(x = null, y = null) {
+  if (x == null || y == null) {
+    const view = map.getView();
+    const center = view.getCenter();
+    x = center[0].toFixed(6);
+    y = center[1].toFixed(6);
+  }
+  c0 = document.getElementById("C0").value
+  c1 = document.getElementById("C1").value
+  c2 = document.getElementById("C2").value
+  ignore_pp = document.getElementById("ignore_pp").checked
+  draw_all_island = document.getElementById("draw_all_island").checked
+  fixed_width = document.getElementById("fixed_width").checked
+
+  turns = document.querySelector('input[name="turns"]:checked').value;
+  layout = document.querySelector('input[name="layout"]:checked').value;
+  margins = document.getElementById("margins").value;
+  scale = document.querySelector('input[name="scale"]:checked').value;
+
+  var command = "PYTHONPATH=$PWD examples/get-crossroad-schematization.py --osm -l --display-preview -c " + y + " " + x + 
+    " --c0 " + c0 + " --c1 " + c1 + " --c2 " + c2
+
+  if (ignore_pp)
+    command += " --ignore-crossings-for-sidewalks"
+  if (draw_all_island)
+    command += " --non-reachable-islands"
+  if (fixed_width)
+    command += " --use-fixed-width-on-branches"
+
+  if (turns == "bevel") {
+    command += " --turn-shape BEVELED"
+  }
+  else if (turns == "straight") {
+    command += " --turn-shape STRAIGHT_ANGLE"
+  }
+  else if (turns == "adjusted") {
+    command += " --turn-shape ADJUSTED_ANGLE"
+  }
+
+  command += " --scale " + scale
+  command += " --layout " + layout
+  command += " --margin " + margins
+
+  document.getElementById("command_line").innerHTML = command
+}
+
 function resetParameters() {
   document.getElementById("C0").value = 2
   document.getElementById("C1").value = 2
@@ -390,6 +436,7 @@ function init() {
     document.getElementById("streetview_button").href = 'http://maps.google.com/maps?q=&layer=c&cbll=' + y + "," + x + '&cbp=11,0,0,0,0';
     window.history.pushState(state, 'map', hash);
     
+    updateCommandLine(x, y);
   };
 
   map.on('moveend', updatePermalink);
@@ -400,6 +447,10 @@ function init() {
   opacityInput.addEventListener('input', updateOpacity);
   document.querySelectorAll("input[name='background']").forEach((input) => {
     input.addEventListener('change', setVisibleMap);
+  });
+
+  document.querySelectorAll("input").forEach((input) => {
+    input.addEventListener('change', updateCommandLine)
   });
 
 }

@@ -67,19 +67,25 @@ header h1 {
   opacity: 1;
 }
 
-.panel, .selected_panel  {
+.panel, .selected_panel, .visible_panel  {
   border: 2px solid #7EBC6F;
   background: #fff;
   display: none;
   padding: 5px;
 }
 
-.selected_panel {
+.selected_panel, .visible_panel {
   display: block;
 }
 
 .parameters>div, .choix {
   margin: 0.5em 0;
+}
+
+#command_line {
+  font-family: monospace;
+  background: #eee;
+  padding: 0.5em;
 }
 
 #map { 
