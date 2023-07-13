@@ -1,4 +1,4 @@
-crossroads-schematization>=0.2.12
+crossroads-schematization>=0.2.13
 osmnx
 scipy>=1.9.3
 flask>=2.2.2
