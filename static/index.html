@@ -41,7 +41,10 @@
   <body onload=init()>
     <div id="map" class="map" tabindex="0" autofocus></div>
     <div id="content">
-      <div id="loading" class="hidden"><div class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>
+      <div id="loading" class="hidden">
+        <div><p>La schématisation du carrefour est en cours de calcul sur le serveur, veuillez patienter quelques secondes.</p>
+        <div class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>
+      </div>
       <div id="interface">
         <div id="text">
           <p>Cliquez au centre d'un carrefour pour en obtenir sa schématisation.</p>
@@ -86,7 +89,7 @@
           <div id="settings" class="selected_panel">
             <div id="settings_content">
               <fieldset>
-              <legend>Paramètres de segmentation</legend>
+              <legend>Segmentation</legend>
               <div class="parameters">
                 <div>
                   <span><label>Rayon élémentaire (C0)&nbsp;: </label><label id="C0val">2</label></span>
@@ -103,7 +106,7 @@
               </div>
               </fieldset>
               <fieldset>
-                <legend>Paramètres du document</legend>
+                <legend>Document</legend>
                 <div class="parameters">
                   <div>
                     <div>
@@ -142,43 +145,76 @@
                     </div>
                   </div>
                   <div>
-                    <span><label>Marges (cm) autour de la carte&nbsp;:</label></span>
+                    <span><label>Marges (cm) autour de la carte&nbsp;:</label></span><br />
                     <input type="number" id="margins" name="margins" min="0" max="10" step="0.1" value="1.0" />
                   </div>
                 </fieldset>
-                <fieldset>
-                <legend>Paramètres de schématisation</legend>
-                <div class="parameters">
-    
-                  <div><input type="checkbox" id="ignore_pp"> <label>Les trottoirs ignorent les passages piétons</label></div>
-                  
-                  <div><input type="checkbox" id="fixed_width"> <label>Branches à largeur fixe</label></div>
+                <div class="espace">
+                <label for="profil-selection">Profil de généralisation&nbsp;:</label>
+                  <select name="profil-selection" id="profil-selection">
+                      <option value="weak-schematization">Faible schématisation</option>
+                      <option value="strong-schematization" selected>Très schématique</option>
+                      <option value="manual">Ajustement manuel...</option>
+                  </select>
+                </div>
+                <div id="generalization" class="hidden">
+                  <fieldset>
+                  <legend>Abstraction de la géométrie</legend>
+                  <div class="parameters">
+                    <div><input type="checkbox" id="normalize_angles" checked> <label>Forcer les angles des branches</label></div>
 
-                  <div>
-                    <span><label>Forme des tournants&nbsp;:</label></span>
-                    <div class="choix">
-                      <div>
-                        <input type="radio" id="bevel" name="turns" value="bevel"
-                              checked>
-                        <label for="bevel">chanfreins</label>
-                      </div>
-                      <div>
-                        <input type="radio" id="straight" name="turns" value="straight">
-                        <label for="straight">angles vifs</label>
-                      </div>
-                      <div>
-                        <input type="radio" id="adjusted" name="turns" value="adjusted" checked>
-                        <label for="adjusted">angles ajustés</label>
+                    <div id="normalize_angles_param">
+                      <span><label>Nombre de subdivisions du cadran (ex&nbsp;: 4, 8, 12, ...)&nbsp;:</label></span><br />
+                      <input type="number" id="angle_normalization" name="angle_normalization" min="4" max="32" step="1" value="8" />
+                    </div>
+
+                    <div><input type="checkbox" id="snap_aligned_streets" checked> <label>Forcer l'alignement des rues quasi-alignées</label></div>
+                    </div>
+                  </fieldset> 
+                    <fieldset>
+                      <legend>Tracé des trottoirs</legend>
+                      <div class="parameters">
+                    <div><input type="checkbox" id="ignore_pp"> <label>Les trottoirs ignorent les passages piétons</label></div>
+                    
+                    <div><input type="checkbox" id="fixed_width"> <label>Branches à largeur fixe</label></div>
+
+                    <div>
+                      <span><label>Forme des tournants&nbsp;:</label></span>
+                      <div class="choix">
+                        <div>
+                          <input type="radio" id="bevel" name="turns" value="bevel"
+                                checked>
+                          <label for="bevel">chanfreins</label>
+                        </div>
+                        <div>
+                          <input type="radio" id="straight" name="turns" value="straight">
+                          <label for="straight">angles vifs</label>
+                        </div>
+                        <div>
+                          <input type="radio" id="adjusted" name="turns" value="adjusted" checked>
+                          <label for="adjusted">angles ajustés</label>
+                        </div>
                       </div>
                     </div>
                   </div>
+                </fieldset> 
+                    <fieldset>
+                      <legend>Tracé des îlots</legend>
+                      <div class="parameters">
 
-                  <div><input type="checkbox" id="draw_all_island"> <label>Représenter les îlots non atteignables</label></div>
-
-                </div>
-              </fieldset>
+                    <div><input type="checkbox" id="draw_all_island"> <label>Représenter les îlots non atteignables</label></div>
+                      
+                    <div>
+                      <span><label>Surface minimum pour qu'un îlot soit tracé dans une forme précise (en m²)&nbsp;:</label></span><br />
+                      <input type="number" id="threshold_small_island" name="threshold_small_island" min="0" max="120" step="1" value="30" />
+                    </div>
+                    
+                  </div>
+                </fieldset>
+                <button id="reset_button" class="button button_large" onclick=resetParameters()>Réinitialiser</button></span>
+              </div>
             </div>
-            <span id="settings_buttons"><button id="reload_button" class="button_disabled" disabled onclick=reloadPigeon()>Recharger</button><button id="reset_button" class="button" onclick=resetParameters()>Réinitialiser</button></span>
+            <button id="reload_button" class="button_disabled button button_large" disabled onclick=reloadSchematization()>Recharger</button>
             <div class="visible_panel">
               <h2>Ligne de commande</h2>
               <div id="command_line"></div>

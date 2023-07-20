@@ -1,0 +1,11 @@
+{
+    "ignore_pp": false,
+    "draw_all_island": false,
+    "fixed_width": false,
+    "turns": "adjusted",
+  
+    "normalize_angles": false,
+    "angle_normalization": 8,
+    "snap_aligned_streets": false,
+    "threshold_small_island": 20
+}

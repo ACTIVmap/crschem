@@ -7,10 +7,11 @@ import random
 import string
 import json
 import traceback
+import os
 from schematization import *
 from flask import Flask, request, send_file
 
-def log(uid, lat, lng, c0, c1, c2, ignore_pp, fixed_width, turns, layout, margins, scale, draw_all_island, error=None, comment=None):
+def log(uid, lat, lng, c0, c1, c2, ignore_pp, fixed_width, turns, layout, margins, scale, draw_all_island, normalize_angles, angle_normalization, snap_aligned_streets, threshold_small_island, error=None, comment=None):
     xml = ""
     for file in shutil.os.listdir("static/cache/"+uid):
         if file.endswith('.xml'):
@@ -19,7 +20,7 @@ def log(uid, lat, lng, c0, c1, c2, ignore_pp, fixed_width, turns, layout, margin
     libraries = ""
     for lib in ["osmnx","crossroads-segmentation","crmodel", "crossroads-schematization"]:
         libraries += "%s %s\n"%(lib, version(lib))
-    logfile = "DATE : %s\nPOSITION : %s %s\nC0 C1 C2 : %s %s %s\nignore_pp : %s\nfixed_width: %s\nturns: %s\nlayout: %s\nmargins: %s\nscale: %s\ndraw_all_island: %s\nIBRARIES : \n%s"%(datetime.now().strftime("%d/%m/%Y %H:%M:%S"), lat, lng, c0, c1, c2, ignore_pp, fixed_width, turns, layout, margins, scale, draw_all_island, libraries)
+    logfile = "DATE : %s\nPOSITION : %s %s\nC0 C1 C2 : %s %s %s\nignore_pp : %s\nfixed_width: %s\nturns: %s\nlayout: %s\nmargins: %s\nscale: %s\ndraw_all_island: %s\nnormalize_angles: %s\nangle_normalization: %s\nsnap_aligned_streets: %s\nthreshold_small_island: %s\nIBRARIES : \n%s"%(datetime.now().strftime("%d/%m/%Y %H:%M:%S"), lat, lng, c0, c1, c2, ignore_pp, fixed_width, turns, layout, margins, scale, draw_all_island, normalize_angles, angle_normalization, snap_aligned_streets, threshold_small_island, libraries)
     if comment:
         logfile += "COMMENT : \n%s\n"%comment
     if error:
@@ -59,12 +60,19 @@ def build_schematization():
     margins = args.get("margins")
     scale = args.get("scale")
     draw_all_island = args.get("draw_all_island") == "true"
-
+    normalize_angles = args.get("normalize_angles") == "true"
+    angle_normalization = args.get("angle_normalization")
+    snap_aligned_streets = args.get("snap_aligned_streets") == "true"
+    threshold_small_island = args.get("threshold_small_island")
 
     if lat and lng and uid:
         result, directory = generate_schematization_if_required(uid, float(lat), float(lng), float(c0), float(c1), float(c2), 
-                bool(ignore_pp), bool(fixed_width), str(turns), bool(draw_all_island), str(layout), float(margins), int(scale), app.logger)
-        log(uid, lat, lng, c0, c1, c2, ignore_pp, fixed_width, turns, layout, margins, scale, draw_all_island, result, comment)
+                bool(ignore_pp), bool(fixed_width), str(turns), bool(draw_all_island), str(layout), float(margins), int(scale), 
+                bool(normalize_angles), int(angle_normalization), bool(snap_aligned_streets), int(threshold_small_island),
+                app.logger)
+        log(uid, lat, lng, c0, c1, c2, ignore_pp, fixed_width, turns, layout, margins, scale, draw_all_island, 
+                normalize_angles, angle_normalization, snap_aligned_streets, threshold_small_island,
+                result, comment)
         return directory
     else:
         return ""
@@ -92,6 +100,22 @@ def send_schematization():
         app.logger.info("fichier manquant")
         return "fichier manquant"
 
+@app.route("/profile")
+def send_profile():
+    name = request.args.get("name")
+
+    if name is None:
+        app.logger.info("nom de profil manquant")
+        return json.dumps({"error": "no profile name defined"})
+
+    filename = "profiles/" + name + ".json"
+    if os.path.isfile(filename):
+        with open(filename) as profile_file:
+            return profile_file.read()
+
+    else:
+        app.logger.info("profile inconnu")
+        return json.dumps({"error": "unknown profile"})
 
 if __name__ == '__main__':
     app.run(debug=True, use_reloader=False, host='0.0.0.0', port=int(shutil.os.environ.get("PORT", 8080)))

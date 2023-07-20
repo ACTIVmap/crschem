@@ -1,9 +1,10 @@
 var map;
 var uid = Math.random().toString(36).slice(2);
-coords = null
+var coords = null
 requesting = false
 layerTactile = null
 var osm, osmfr, orthoIGN;
+var params = {};
 
 ol.proj.useGeographic()
 
@@ -12,11 +13,11 @@ ol.proj.useGeographic()
 function setDownload(href = "") {
   // button
   if (href == "") {
-    document.getElementById("download_button").disabled = true
+    document.getElementById("download_button").setAttribute("disabled", "disabled");
     document.getElementById("download_button").className = "button_disabled button_large"
   }
   else {
-    document.getElementById("download_button").disabled = false
+    document.getElementById("download_button").removeAttribute("disabled");
     document.getElementById("download_button").className = "button button_large"
   }
   document.getElementById("download_button").href = href;
@@ -28,19 +29,24 @@ function setParameters(msg = "") {
     document.getElementById("text").innerHTML = msg
   }
   // parameters
-  document.getElementById("C0").value = c0
-  document.getElementById("C0val").innerHTML = c0
-  document.getElementById("C1").value = c1
-  document.getElementById("C1val").innerHTML = c1
-  document.getElementById("C2").value = c2
-  document.getElementById("C2val").innerHTML = c2
-  document.getElementById("ignore_pp").checked = ignore_pp
-  document.getElementById("draw_all_island").checked = draw_all_island
-  document.getElementById("fixed_width").checked = fixed_width
-  document.getElementById(turns).checked = true
-  document.getElementById(layout).checked = true
-  document.getElementById("margins").value = margins
-  document.getElementById(scale).checked = true
+  document.getElementById("C0").value = params["c0"]
+  document.getElementById("C0val").innerHTML = params["c0"]
+  document.getElementById("C1").value = params["c1"]
+  document.getElementById("C1val").innerHTML = params["c1"]
+  document.getElementById("C2").value = params["c2"]
+  document.getElementById("C2val").innerHTML = params["c2"]
+  document.getElementById("ignore_pp").checked = params["ignore_pp"]
+  document.getElementById("draw_all_island").checked = params["draw_all_island"]
+  document.getElementById("fixed_width").checked = params["fixed_width"]
+  document.getElementById(params["turns"]).checked = true
+  document.getElementById(params["layout"]).checked = true
+  document.getElementById("margins").value = params["margins"]
+  document.getElementById(params["scale"]).checked = true
+
+  document.getElementById("normalize_angles").checked = params["normalize_angles"];
+  document.getElementById("angle_normalization").innerHTML = params["angle_normalization"];
+  document.getElementById("snap_aligned_streets").checked = params["snap_aligned_streets"];
+  document.getElementById("threshold_small_island").value = params["threshold_small_island"];
 }
 
 function resetInterface(msg = "", href = "") {
@@ -59,40 +65,83 @@ function updateOpacity() {
   }
 }
 
+function loadProfile(profil) {
+  request = window.location.origin+window.location.pathname+"profile?name=" + profil;
+  fetchTimeout(request, 20000).then(response => {
+    return response.json(); 
+  }).then(json => {
+    if (json["error"] === undefined) {
+      for (const [key, value] of Object.entries(json)) {
+        params[key] = value
+      }
+      /* TODO params["*/
+      setParameters();
+    }
+    else {
+      resetInterface("Erreur pendant la récupération du profile: <pre>" + json["error"] + "</pre>");
+    }
 
+  }).catch(error => {
+    if (typeof msg !== 'undefined')
+    resetInterfaceMessage(msg);
+    else
+    resetInterface("Le serveur n'a pas répondu. Veuillez réessayer ultérieurement.");
+  })
+}
+
+function loadParametersFromUI() {
+  params["c0"] = document.getElementById("C0").value
+  params["c1"] = document.getElementById("C1").value
+  params["c2"] = document.getElementById("C2").value
+  params["ignore_pp"] = document.getElementById("ignore_pp").checked
+  params["draw_all_island"] = document.getElementById("draw_all_island").checked
+  params["fixed_width"] = document.getElementById("fixed_width").checked
+
+  params["turns"] = document.querySelector('input[name="turns"]:checked').value;
+  params["layout"] = document.querySelector('input[name="layout"]:checked').value;
+  params["margins"] = document.getElementById("margins").value;
+  params["scale"] = document.querySelector('input[name="scale"]:checked').value;
+
+  params["normalize_angles"] = document.getElementById("normalize_angles").checked;
+  params["angle_normalization"] = document.getElementById("angle_normalization").innerHTML;
+  params["snap_aligned_streets"] = document.getElementById("snap_aligned_streets").checked;
+  params["threshold_small_island"] = document.getElementById("threshold_small_island").value;
+}
 
 /* Core function */
 function getSchematization(e, comment="") {
+    // Fetch parameters
+    coords = e.coordinate;
+
+    getSchematizationFromCoords(comment);
+}
+
+function getSchematizationFromCoords(comment = "") {
   if(!requesting){
+    var lat = coords[1];
+    var lng = coords[0];
+
+        
     requesting = true
     disableReload()
 
-    // Fetch parameters
-    var coords = e.coordinate;
-    var lat = coords[1];
-    var lng = coords[0];
-    c0 = document.getElementById("C0").value
-    c1 = document.getElementById("C1").value
-    c2 = document.getElementById("C2").value
-    ignore_pp = document.getElementById("ignore_pp").checked
-    draw_all_island = document.getElementById("draw_all_island").checked
-    fixed_width = document.getElementById("fixed_width").checked
 
-    turns = document.querySelector('input[name="turns"]:checked').value;
-    layout = document.querySelector('input[name="layout"]:checked').value;
-    margins = document.getElementById("margins").value;
-    scale = document.querySelector('input[name="scale"]:checked').value;
-
+    loadParametersFromUI();
+    
     comment = comment.replaceAll("\n", "%0A")
 
     // Replace content with loading animation
     document.getElementById("interface").className = 'hidden'
     document.getElementById("loading").className = ''
     
-    request = window.location.origin+window.location.pathname+"schematization"+"?lat="+lat+"&lng="+lng+"&c0="+c0+"&c1="+c1+"&c2="+c2
-    request += "&ignore_pp="+ignore_pp+"&fixed_width="+fixed_width+"&turns="+turns
-    request += "&draw_all_island="+draw_all_island
-    request += "&layout="+layout+"&margins="+margins+"&scale="+scale
+    // add command line after clic
+    updateCommandLine(lng, lat)
+
+    request = window.location.origin+window.location.pathname+"schematization"+"?lat="+lat+"&lng="+lng+"&c0="+params["c0"]+"&c1="+params["c1"]+"&c2="+params["c2"]
+    request += "&ignore_pp="+params["ignore_pp"]+"&fixed_width="+params["fixed_width"]+"&turns="+params["turns"]
+    request += "&draw_all_island="+params["draw_all_island"]
+    request += "&layout="+params["layout"]+"&margins="+params["margins"]+"&scale="+params["scale"]
+    request += "&normalize_angles="+params["normalize_angles"]+"&angle_normalization="+params["angle_normalization"]+"&snap_aligned_streets="+params["snap_aligned_streets"]+"&threshold_small_island="+params["threshold_small_island"]
     request += "&uid="+uid+"&comment="+comment
     // Fetch data from the API. Timeout of 10s.
     fetchTimeout(request, 20000).then(response => {
@@ -167,12 +216,12 @@ function getSchematization(e, comment="") {
 /* Handler functions */
 
 function reloadSchematization() {
-  getSchematization({latlng : coords})
+  getSchematizationFromCoords()
 }
 
 function sendComment() {
   comment = document.getElementById("comment_text").value
-  getSchematization({latlng : coords}, comment)
+  getSchematizationFromCoords(comment)
 }
 
 function downloadPDF() {
@@ -222,34 +271,47 @@ function selectSettings() {
 /* UI updating functions */
 
 function enableReload() {
-  reload_button = document.getElementById("reload_button")
-  reload_button.disabled = false
-  reload_button.className = "button"
+  if(coords != null) {
+    reload_button = document.getElementById("reload_button")
+    reload_button.removeAttribute("disabled")
+    reload_button.className = "button button_large"
+  }
 }
 
 function disableReload() {
   reload_button = document.getElementById("reload_button")
-  reload_button.disabled = true
-  reload_button.className = "button_disabled"
+  reload_button.setAttribute("disabled", "disabled")
+  reload_button.className = "button_disabled button_large"
 }
 
 function updateSendButton(message) {
   send_button = document.getElementById("send_button")
   if(message.trim().length > 0 && coords != null) {
     send_button.className = "button"
-    send_button.disabled = false
+    send_button.removeAttribute("disabled")
   }
   else {
     send_button.className = "button_disabled"
-    send_button.disabled = true
+    send_button.setAttribute("disabled", "disabled");
   }
 }
 
 function updateSlider(slider, value) {
   document.getElementById(slider.id+"val").innerHTML = value
   slider.value = value
-  if(coords != null) {
-    enableReload()
+  enableReload()
+}
+
+function setActiveProfile(e) {
+  id_selected = document.querySelector('#profil-selection').selectedIndex;
+  profil = document.querySelector('#profil-selection').options[id_selected].value;
+
+  if (profil == "manual") {
+    document.getElementById('generalization').className = "";
+  }
+  else {
+    document.getElementById('generalization').className = "hidden";
+    loadProfile(profil);
   }
 }
 
@@ -260,61 +322,63 @@ function updateCommandLine(x = null, y = null) {
     x = center[0].toFixed(6);
     y = center[1].toFixed(6);
   }
-  c0 = document.getElementById("C0").value
-  c1 = document.getElementById("C1").value
-  c2 = document.getElementById("C2").value
-  ignore_pp = document.getElementById("ignore_pp").checked
-  draw_all_island = document.getElementById("draw_all_island").checked
-  fixed_width = document.getElementById("fixed_width").checked
-
-  turns = document.querySelector('input[name="turns"]:checked').value;
-  layout = document.querySelector('input[name="layout"]:checked').value;
-  margins = document.getElementById("margins").value;
-  scale = document.querySelector('input[name="scale"]:checked').value;
+  loadParametersFromUI()
 
   var command = "PYTHONPATH=$PWD examples/get-crossroad-schematization.py --osm -l --display-preview -c " + y + " " + x + 
-    " --c0 " + c0 + " --c1 " + c1 + " --c2 " + c2
+    " --c0 " + params["c0"] + " --c1 " + params["c1"] + " --c2 " + params["c2"]
 
-  if (ignore_pp)
+  if (params["ignore_pp"])
     command += " --ignore-crossings-for-sidewalks"
-  if (draw_all_island)
+  if (params["draw_all_island"])
     command += " --non-reachable-islands"
-  if (fixed_width)
+  if (params["fixed_width"])
     command += " --use-fixed-width-on-branches"
 
-  if (turns == "bevel") {
+  if (params["turns"] == "bevel") {
     command += " --turn-shape BEVELED"
   }
-  else if (turns == "straight") {
+  else if (params["turns"] == "straight") {
     command += " --turn-shape STRAIGHT_ANGLE"
   }
-  else if (turns == "adjusted") {
+  else if (params["turns"] == "adjusted") {
     command += " --turn-shape ADJUSTED_ANGLE"
   }
 
-  command += " --scale " + scale
-  command += " --layout " + layout
-  command += " --margin " + margins
+  command += " --scale " + params["scale"]
+  command += " --layout " + params["layout"]
+  command += " --margin " + params["margins"]
+
+  command += " --threshold-small-island " + params["threshold_small_island"]
+  if (params["normalize_angles"])
+    command += " --normalizing-angles " + params["angle_normalization"]
+  else
+    command += " --normalizing-angles 0"
+  if (! params["snap_aligned_streets"])
+    command += " --no-snap-aligned-streets"
 
   document.getElementById("command_line").innerHTML = command
 }
 
 function resetParameters() {
-  document.getElementById("C0").value = 2
-  document.getElementById("C1").value = 2
-  document.getElementById("C2").value = 4
-  document.getElementById("C0val").innerHTML = 2
-  document.getElementById("C1val").innerHTML = 2
-  document.getElementById("C2val").innerHTML = 4
 
-  document.getElementById("ignore_pp").checked = false;
-  document.getElementById("fixed_width").checked = false;
-  document.getElementById("draw_all_island").checked = false;
+  params["c0"] = 2
+  params["c1"] = 2
+  params["c2"] = 4
+  params["ignore_pp"] = false
+  params["draw_all_island"] = false
+  params["fixed_width"] = false
 
-  document.getElementById("adjusted").checked = true;
-  document.getElementById("A5_landscape").checked = true;
-  document.getElementById("margins").value = 1.0;
-  document.getElementById("400").checked = true;
+  params["turns"] = "adjusted";
+  params["layout"] = "A5_landscape";
+  params["margins"] = 1.0;
+  params["scale"] = "400";
+
+  params["normalize_angles"] = true;
+  params["angle_normalization"] = 8;
+  params["snap_aligned_streets"] = true;
+  params["threshold_small_island"] = 30;
+
+  setParameters();
 }
 
 function setVisibleMap() {
@@ -436,21 +500,42 @@ function init() {
     document.getElementById("streetview_button").href = 'http://maps.google.com/maps?q=&layer=c&cbll=' + y + "," + x + '&cbp=11,0,0,0,0';
     window.history.pushState(state, 'map', hash);
     
-    updateCommandLine(x, y);
   };
 
   map.on('moveend', updatePermalink);
 
 
   opacityInput = document.getElementById('opacity');
-  opacityInput.disabled = false;
+  opacityInput.removeAttribute("disabled");
   opacityInput.addEventListener('input', updateOpacity);
   document.querySelectorAll("input[name='background']").forEach((input) => {
     input.addEventListener('change', setVisibleMap);
   });
 
-  document.querySelectorAll("input").forEach((input) => {
-    input.addEventListener('change', updateCommandLine)
+  normalizeAngles = document.getElementById('normalize_angles');
+  normalizeAngles.addEventListener('change', (e) => {
+    var checked = document.getElementById('normalize_angles').checked;
+    normalizeAngles = document.getElementById('angle_normalization');
+    normalizeAnglesPanel = document.getElementById('normalize_angles_param');
+    if (checked) {
+      normalizeAngles.removeAttribute("disabled");
+      normalizeAnglesPanel.className = "";
+    }
+    else {
+      normalizeAngles.setAttribute("disabled", "disabled");
+      normalizeAnglesPanel.className = "disabled";
+    }
+    
+    
   });
+
+  document.querySelectorAll("input").forEach((input) => {
+    input.addEventListener('change', enableReload)});
+  
+  document.querySelectorAll("select").forEach((input) => {
+    input.addEventListener('change', enableReload)});
+
+  document.getElementById('profil-selection').addEventListener("change", setActiveProfile);
+  setActiveProfile();
 
 }

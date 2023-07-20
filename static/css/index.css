@@ -33,6 +33,11 @@ header h1 {
   font-weight: bold;
 }
 
+.selected_panel .button_large {
+  width: 100%;
+  margin-bottom: 1em;
+}
+
 .button_large {
   left: 0;
   right: 0;
@@ -59,6 +64,11 @@ header h1 {
   cursor: default;
 }
 
+.disabled {
+  color: rgb(83, 79, 79);
+  transition-duration: 0.1s;
+}
+
 .tab {
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
@@ -76,6 +86,10 @@ header h1 {
 
 .selected_panel, .visible_panel {
   display: block;
+}
+
+.espace {
+  margin: 1em 0;
 }
 
 .parameters>div, .choix {
@@ -107,7 +121,7 @@ header h1 {
   overflow: auto;
   position: absolute;
 }
-#interface>div {
+#content>div>div {
   margin: 10px;
 }
 
